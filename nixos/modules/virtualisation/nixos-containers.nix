@@ -201,8 +201,11 @@ let
       --notify-ready=yes \
       --kill-signal=SIGRTMIN+3 \
       --bind-ro=/nix/store:/nix/store$NIX_BIND_OPT \
-      --bind-ro=/nix/var/nix/db:/nix/var/nix/db$NIX_BIND_OPT \
-      --bind-ro=/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket$NIX_BIND_OPT \
+      ${
+        optionalString (config.virtualisation.writableStore or true
+        ) "--bind-ro=/nix/var/nix/db:/nix/var/nix/db$NIX_BIND_OPT"
+      } \
+      ${optionalString config.nix.enable "--bind-ro=/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket$NIX_BIND_OPT"} \
       --bind="/nix/var/nix/profiles/per-container/$INSTANCE:/nix/var/nix/profiles$NIX_BIND_OPT" \
       --bind="/nix/var/nix/gcroots/per-container/$INSTANCE:/nix/var/nix/gcroots$NIX_BIND_OPT" \
       ${optionalString (!cfg.ephemeral) "--link-journal=try-guest"} \
