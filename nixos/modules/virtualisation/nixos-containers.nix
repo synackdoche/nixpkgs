@@ -202,7 +202,7 @@ let
       --kill-signal=SIGRTMIN+3 \
       --bind-ro=/nix/store:/nix/store$NIX_BIND_OPT \
       ${
-        optionalString (config.virtualisation.writableStore or true
+        optionalString (config.nix.enable && (config.virtualisation.writableStore or true)
         ) "--bind-ro=/nix/var/nix/db:/nix/var/nix/db$NIX_BIND_OPT"
       } \
       ${optionalString config.nix.enable "--bind-ro=/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket$NIX_BIND_OPT"} \
