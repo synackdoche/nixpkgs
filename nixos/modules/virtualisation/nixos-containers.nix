@@ -293,6 +293,7 @@ let
          [[ -n "''${HOST_ADDRESS6-}" ]] || [[ -n "''${LOCAL_ADDRESS6-}" ]]; then
         if [[ -z "''${HOST_BRIDGE-}" ]]; then
           ifaceHost=ve-$INSTANCE
+          echo "Bringing $ifaceHost up"
           ip link set dev "$ifaceHost" up
 
           ${ipcall cfg "ip addr" "HOST_ADDRESS" "hostAddress"}
