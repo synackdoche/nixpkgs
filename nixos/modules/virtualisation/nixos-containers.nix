@@ -202,7 +202,8 @@ let
       --kill-signal=SIGRTMIN+3 \
       --bind-ro=/nix/store:/nix/store$NIX_BIND_OPT \
       ${
-        optionalString (config.nix.enable && (config.virtualisation.writableStore or true)
+        optionalString (
+          config.nix.enable && (config.virtualisation.writableStore or true)
         ) "--bind-ro=/nix/var/nix/db:/nix/var/nix/db$NIX_BIND_OPT"
       } \
       ${optionalString config.nix.enable "--bind-ro=/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket$NIX_BIND_OPT"} \
@@ -293,13 +294,12 @@ let
          [[ -n "''${HOST_ADDRESS6-}" ]] || [[ -n "''${LOCAL_ADDRESS6-}" ]]; then
         if [[ -z "''${HOST_BRIDGE-}" ]]; then
           ifaceHost=ve-$INSTANCE
-          echo "Bringing $ifaceHost up"
           ip link set dev "$ifaceHost" up
 
-          ${ipcall cfg "ip addr" "HOST_ADDRESS" "hostAddress"}
-          ${ipcall cfg "ip -6 addr" "HOST_ADDRESS6" "hostAddress6"}
-          ${ipcall cfg "ip route" "LOCAL_ADDRESS" "localAddress"}
-          ${ipcall cfg "ip -6 route" "LOCAL_ADDRESS6" "localAddress6"}
+          # ${ipcall cfg "ip addr" "HOST_ADDRESS" "hostAddress"}
+          # ${ipcall cfg "ip -6 addr" "HOST_ADDRESS6" "hostAddress6"}
+          # ${ipcall cfg "ip route" "LOCAL_ADDRESS" "localAddress"}
+          # ${ipcall cfg "ip -6 route" "LOCAL_ADDRESS6" "localAddress6"}
         fi
       fi
       ${concatStringsSep "\n" (mapAttrsToList renderExtraVeth cfg.extraVeths)}
@@ -1183,15 +1183,48 @@ in
             }
           ) config.containers;
 
-        # Generate /etc/hosts entries for the containers.
-        networking.extraHosts = concatStrings (
-          mapAttrsToList (
-            name: cfg:
-            optionalString (cfg.localAddress != null) ''
-              ${head (splitString "/" cfg.localAddress)} ${name}.containers
-            ''
-          ) config.containers
-        );
+        networking = {
+          interfaces."ve-${name}" = {
+            ipv4 = lib.mkIf (cfg.hostAddress != null) {
+              addresses = lib.mkAfter [
+                {
+                  address = cfg.localAddress;
+                  prefixLength = 32;
+                }
+              ];
+              routes = [
+                {
+                  address = cfg.localAddress;
+                  prefixLength = 32;
+                }
+              ];
+            };
+            ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
+              addresses = lib.mkAfter [
+                {
+                  address = cfg.localAddress6;
+                  prefixLength = 128;
+                }
+              ];
+              routes = [
+                {
+                  address = cfg.localAddress6;
+                  prefixLength = 128;
+                }
+              ];
+            };
+          };
+
+          # Generate /etc/hosts entries for the containers.
+          extraHosts = concatStrings (
+            mapAttrsToList (
+              name: cfg:
+              optionalString (cfg.localAddress != null) ''
+                ${head (splitString "/" cfg.localAddress)} ${name}.containers
+              ''
+            ) config.containers
+          );
+        };
 
         networking.dhcpcd.denyInterfaces = [
           "ve-*"
