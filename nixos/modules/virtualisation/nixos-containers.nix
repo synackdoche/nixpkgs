@@ -1226,6 +1226,9 @@ in
               name: cfg:
               optionalString (cfg.localAddress != null) ''
                 ${head (splitString "/" cfg.localAddress)} ${name}.containers
+              '' ++
+              optionalString (cfg.localAddress6 != null) ''
+                ${head (splitString "/" cfg.localAddress6)} ${name}.containers
               ''
             ) config.containers
           );
