@@ -1188,7 +1188,7 @@ in
             ipv4 = lib.mkIf (cfg.hostAddress != null) {
               addresses = lib.mkAfter [
                 {
-                  address = cfg.localAddress;
+                  address = cfg.hostAddress;
                   prefixLength = 32;
                 }
               ];
@@ -1202,7 +1202,7 @@ in
             ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
               addresses = lib.mkAfter [
                 {
-                  address = cfg.localAddress6;
+                  address = cfg.hostAddress6;
                   prefixLength = 128;
                 }
               ];
