@@ -1184,41 +1184,39 @@ in
           ) config.containers;
 
         networking = {
-
-          interfaces = mkMerge (
-            mapAttrsToList (name: cfg: {
-              "ve-${name}" = lib.mkIf (cfg.privateNetwork) {
-                ipv4 = lib.mkIf (cfg.hostAddress != null) {
-                  addresses = lib.mkAfter [
-                    {
-                      address = cfg.hostAddress;
-                      prefixLength = 32;
-                    }
-                  ];
-                  routes = [
-                    {
-                      address = cfg.localAddress;
-                      prefixLength = 32;
-                    }
-                  ];
-                };
-                ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
-                  addresses = lib.mkAfter [
-                    {
-                      address = cfg.hostAddress6;
-                      prefixLength = 128;
-                    }
-                  ];
-                  routes = [
-                    {
-                      address = cfg.localAddress6;
-                      prefixLength = 128;
-                    }
-                  ];
-                };
+          interfaces = mapAttrs' (
+            name: cfg:
+            nameValuePair "ve-${name}" {
+              ipv4 = lib.mkIf (cfg.hostAddress != null) {
+                addresses = lib.mkAfter [
+                  {
+                    address = cfg.hostAddress;
+                    prefixLength = 32;
+                  }
+                ];
+                routes = [
+                  {
+                    address = cfg.localAddress;
+                    prefixLength = 32;
+                  }
+                ];
               };
-            }) config.containers
-          );
+              ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
+                addresses = lib.mkAfter [
+                  {
+                    address = cfg.hostAddress6;
+                    prefixLength = 128;
+                  }
+                ];
+                routes = [
+                  {
+                    address = cfg.localAddress6;
+                    prefixLength = 128;
+                  }
+                ];
+              };
+            }
+          ) config.containers;
 
           # Generate /etc/hosts entries for the containers.
           extraHosts = concatStrings (
@@ -1226,8 +1224,8 @@ in
               name: cfg:
               optionalString (cfg.localAddress != null) ''
                 ${head (splitString "/" cfg.localAddress)} ${name}.containers
-              '' ++
-              optionalString (cfg.localAddress6 != null) ''
+              ''
+              ++ optionalString (cfg.localAddress6 != null) ''
                 ${head (splitString "/" cfg.localAddress6)} ${name}.containers
               ''
             ) config.containers
