@@ -48,6 +48,7 @@
 
     with subtest("Ping the containers using the entries added in /etc/hosts"):
         for host in "simple.containers", "netmask.containers":
-            machine.succeed(f"ping -n -c 1 {host}")
+            machine.succeed(f"ping -4 -n -c 1 {host}")
+            machine.succeed(f"ping -6 -n -c 1 {host}")
   '';
 }
