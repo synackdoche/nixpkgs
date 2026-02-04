@@ -74,7 +74,7 @@ let
     alerting = {
       inherit (cfg) alertmanagers;
     };
-  };
+  } // (filterValidPrometheus cfg.extraConfig);
 
   prometheusYml =
     let
@@ -1816,6 +1816,15 @@ in
       description = ''
         Parameters that are valid in all  configuration contexts. They
         also serve as defaults for other configuration sections
+      '';
+    };
+
+    extraConfig = mkOption {
+      type = types.attrs;
+      default = { };
+      description = ''
+        Additional configuration sections to add to the Prometheus configuration.
+        The keys and values of this attribute set are directly translated to YAML.
       '';
     };
 
