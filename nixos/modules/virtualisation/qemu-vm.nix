@@ -351,7 +351,7 @@ let
           concatStringsSep " \\\n    " (
             mapAttrsToList (
               tag: share:
-              "-virtfs local,path=${share.source},security_model=${share.securityModel},mount_tag=${tag}${lib.optionalString (share.options != []) ("," + concatStringsSep "," share.options)}"
+              "-virtfs local,path=${share.source},security_model=${share.securityModel},mount_tag=${tag}${lib.optionalString (share.virtfsExtraOpts != []) ("," + concatStringsSep "," share.virtfsExtraOpts)}"
             ) config.virtualisation.sharedDirectories
           )
         } \
@@ -576,10 +576,10 @@ in
             type = types.path;
             description = "The mount point of the directory inside the virtual machine";
           };
-          options.options = mkOption {
+          options.virtfsExtraOpts = mkOption {
             type = types.listOf types.str;
             default = [ ];
-            description = "Extra options to be passed to the 9p mount, e.g. `cache=loose` or `msize=65536`.";
+            description = "Extra options to be passed to virtfs flag.";
           };
           options.securityModel = mkOption {
             type = types.enum [
