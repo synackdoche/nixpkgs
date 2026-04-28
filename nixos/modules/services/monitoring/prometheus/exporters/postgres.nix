@@ -28,7 +28,7 @@ in
     };
     dataSourceName = mkOption {
       type = types.str;
-      default = "user=postgres database=postgres host=/run/postgresql sslmode=disable port=${toString config.services.postgresql.port}";
+      default = "user=postgres database=postgres host=/run/postgresql sslmode=disable";
       example = "postgresql://username:password@localhost:5432/postgres?sslmode=disable";
       description = ''
         Accepts PostgreSQL URI form and key=value form arguments.
