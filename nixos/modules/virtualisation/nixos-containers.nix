@@ -295,6 +295,11 @@ let
         if [[ -z "''${HOST_BRIDGE-}" ]]; then
           ifaceHost=ve-$INSTANCE
           ip link set dev "$ifaceHost" up
+
+          ${ipcall cfg "ip addr" "HOST_ADDRESS" "hostAddress"}
+          ${ipcall cfg "ip -6 addr" "HOST_ADDRESS6" "hostAddress6"}
+          ${ipcall cfg "ip route" "LOCAL_ADDRESS" "localAddress"}
+          ${ipcall cfg "ip -6 route" "LOCAL_ADDRESS6" "localAddress6"}
         fi
       fi
       ${concatStringsSep "\n" (mapAttrsToList renderExtraVeth cfg.extraVeths)}
@@ -1178,54 +1183,15 @@ in
             }
           ) config.containers;
 
-        networking = {
-          interfaces = mapAttrs' (
+        # Generate /etc/hosts entries for the containers.
+        networking.extraHosts = concatStrings (
+          mapAttrsToList (
             name: cfg:
-            nameValuePair "ve-${name}" {
-              ipv4 = lib.mkIf (cfg.hostAddress != null) {
-                addresses = lib.mkAfter [
-                  {
-                    address = cfg.hostAddress;
-                    prefixLength = 32;
-                  }
-                ];
-                routes = lib.mkAfter [
-                  {
-                    address = cfg.localAddress;
-                    prefixLength = 32;
-                  }
-                ];
-              };
-              ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
-                addresses = lib.mkAfter [
-                  {
-                    address = cfg.hostAddress6;
-                    prefixLength = 128;
-                  }
-                ];
-                routes = lib.mkAfter [
-                  {
-                    address = cfg.localAddress6;
-                    prefixLength = 128;
-                  }
-                ];
-              };
-            }
-          ) config.containers;
-
-          # Generate /etc/hosts entries for the containers.
-          extraHosts = concatStrings (
-            mapAttrsToList (
-              name: cfg:
-              optionalString (cfg.localAddress != null) ''
-                ${head (splitString "/" cfg.localAddress)} ${name}.containers
-              ''
-              + optionalString (cfg.localAddress6 != null) ''
-                ${head (splitString "/" cfg.localAddress6)} ${name}.containers
-              ''
-            ) config.containers
-          );
-        };
+            optionalString (cfg.localAddress != null) ''
+              ${head (splitString "/" cfg.localAddress)} ${name}.containers
+            ''
+          ) config.containers
+        );
 
         networking.dhcpcd.denyInterfaces = [
           "ve-*"
