@@ -46,6 +46,30 @@ let
           ''}
         ''
       );
+      initVeth = ''
+        # Initialise the container side of the veth pair.
+        if [[ -n "''${HOST_ADDRESS-}" ]]   || [[ -n "''${HOST_ADDRESS6-}" ]]  ||
+          [[ -n "''${LOCAL_ADDRESS-}" ]]  || [[ -n "''${LOCAL_ADDRESS6-}" ]] ||
+          [[ -n "''${HOST_BRIDGE-}" ]]; then
+          ip link set host0 name eth0
+          # ip link set dev eth0 up
+
+          # if [[ -n "''${LOCAL_ADDRESS-}" ]]; then
+          #   ip addr add $LOCAL_ADDRESS dev eth0
+          # fi
+          # if [[ -n "''${LOCAL_ADDRESS6-}" ]]; then
+          #   ip -6 addr add $LOCAL_ADDRESS6 dev eth0
+          # fi
+          # if [[ -n "''${HOST_ADDRESS-}" ]]; then
+          #   ip route add $HOST_ADDRESS dev eth0
+          #   ip route add default via $HOST_ADDRESS
+          # fi
+          # if [[ -n "''${HOST_ADDRESS6-}" ]]; then
+          #   ip -6 route add $HOST_ADDRESS6 dev eth0
+          #   ip -6 route add default via $HOST_ADDRESS6
+          # fi
+        fi
+      '';
     in
     pkgs.writeScript "container-init" ''
       #! ${pkgs.runtimeShell} -e
@@ -53,33 +77,7 @@ let
       # Exit early if we're asked to shut down.
       trap "exit 0" SIGRTMIN+3
 
-      # Initialise the container side of the veth pair.
-      if [[ -n "''${HOST_ADDRESS-}" ]]   || [[ -n "''${HOST_ADDRESS6-}" ]]  ||
-         [[ -n "''${LOCAL_ADDRESS-}" ]]  || [[ -n "''${LOCAL_ADDRESS6-}" ]] ||
-         [[ -n "''${HOST_BRIDGE-}" ]]    || [[ -n "''${LOCAL_MAC_ADDRESS-}" ]]; then
-        ip link set host0 name eth0
-
-        if [[ -n "''${LOCAL_MAC_ADDRESS-}" ]]; then
-          ip link set dev eth0 address "$LOCAL_MAC_ADDRESS"
-        fi
-
-        ip link set dev eth0 up
-
-        if [[ -n "''${LOCAL_ADDRESS-}" ]]; then
-          ip addr add $LOCAL_ADDRESS dev eth0
-        fi
-        if [[ -n "''${LOCAL_ADDRESS6-}" ]]; then
-          ip -6 addr add $LOCAL_ADDRESS6 dev eth0
-        fi
-        if [[ -n "''${HOST_ADDRESS-}" ]]; then
-          ip route add $HOST_ADDRESS dev eth0
-          ip route add default via $HOST_ADDRESS
-        fi
-        if [[ -n "''${HOST_ADDRESS6-}" ]]; then
-          ip -6 route add $HOST_ADDRESS6 dev eth0
-          ip -6 route add default via $HOST_ADDRESS6
-        fi
-      fi
+      ${initVeth}
 
       ${concatStringsSep "\n" (mapAttrsToList renderExtraVeth cfg.extraVeths)}
 
@@ -611,16 +609,52 @@ in
                                 boot.isNspawnContainer = true;
                                 networking.hostName = mkDefault name;
                                 networking.useDHCP = false;
-                                networking.interfaces = lib.mkIf config.privateNetwork (
-                                  lib.mkMerge [
-                                    (lib.mkIf (config.localAddress != null) {
-                                      eth0.ipv4.addresses = [ (ipv4FromString config.localAddress) ];
-                                    })
-                                    (lib.mkIf (config.localAddress6 != null) {
-                                      eth0.ipv6.addresses = [ (lib.network.ipv6.fromString config.localAddress6) ];
-                                    })
-                                  ]
-                                );
+                                networking = {
+                                  defaultGateway = mkIf (config.hostAddress != null) (mkDefault {
+                                    address = config.hostAddress;
+                                    interface = "eth0";
+                                  });
+                                  defaultGateway6 = mkIf (config.hostAddress6 != null) (mkDefault {
+                                    address = config.hostAddress6;
+                                    interface = "eth0";
+                                  });
+
+                                  interfaces = {
+                                    "eth0" = {
+                                      useDHCP = mkDefault (config.hostAddress == null);
+
+                                      ipv4 = {
+                                        addresses = mkIf (config.localAddress != null) (mkAfter [
+                                          {
+                                            address = (head (splitString "/" config.localAddress));
+                                            prefixLength = 24;
+                                          }
+                                        ]);
+                                        routes = mkIf (config.hostAddress != null) (mkAfter [
+                                          {
+                                            address = config.hostAddress;
+                                            prefixLength = 24;
+                                          }
+                                        ]);
+                                      };
+                                      ipv6 = {
+                                        addresses = mkIf (config.localAddress6 != null) (mkAfter [
+                                          {
+                                            address = (head (splitString "/" config.localAddress6));
+                                            prefixLength = 64;
+                                          }
+                                        ]);
+                                        routes = mkIf (config.hostAddress6 != null) (mkAfter [
+                                          {
+                                            address = config.hostAddress6;
+                                            prefixLength = 64;
+                                          }
+                                        ]);
+                                      };
+                                    };
+                                  };
+                                };
+
                                 assertions = [
                                   {
                                     assertion =
@@ -979,7 +1013,7 @@ in
       description = ''
         A set of NixOS system configurations to be run as lightweight
         containers.  Each container appears as a service
-        `container-«name»`
+        `container@«name»`
         on the host system, allowing it to be started and stopped via
         {command}`systemctl`.
       '';
@@ -1183,15 +1217,54 @@ in
             }
           ) config.containers;
 
-        # Generate /etc/hosts entries for the containers.
-        networking.extraHosts = concatStrings (
-          mapAttrsToList (
+        networking = {
+          interfaces = mapAttrs' (
             name: cfg:
-            optionalString (cfg.localAddress != null) ''
-              ${head (splitString "/" cfg.localAddress)} ${name}.containers
-            ''
-          ) config.containers
-        );
+            nameValuePair "ve-${name}" {
+              ipv4 = lib.mkIf (cfg.hostAddress != null) {
+                addresses = lib.mkDefault [
+                  {
+                    address = cfg.hostAddress;
+                    prefixLength = 32;
+                  }
+                ];
+                routes = lib.mkDefault [
+                  {
+                    address = (head (splitString "/" cfg.localAddress));
+                    prefixLength = 32;
+                  }
+                ];
+              };
+              ipv6 = lib.mkIf (cfg.hostAddress6 != null) {
+                addresses = lib.mkDefault [
+                  {
+                    address = cfg.hostAddress6;
+                    prefixLength = 128;
+                  }
+                ];
+                routes = lib.mkDefault [
+                  {
+                    address = (head (splitString "/" cfg.localAddress6));
+                    prefixLength = 128;
+                  }
+                ];
+              };
+            }
+          ) config.containers;
+
+          # Generate /etc/hosts entries for the containers.
+          extraHosts = concatStrings (
+            mapAttrsToList (
+              name: cfg:
+              optionalString (cfg.localAddress != null) ''
+                ${head (splitString "/" cfg.localAddress)} ${name}.containers
+              ''
+              + optionalString (cfg.localAddress6 != null) ''
+                ${head (splitString "/" cfg.localAddress6)} ${name}.containers
+              ''
+            ) config.containers
+          );
+        };
 
         networking.dhcpcd.denyInterfaces = [
           "ve-*"
@@ -1213,6 +1286,28 @@ in
           "tap"
           "tun"
         ];
+
+        # Prevent the use of an overlayfs as it cannot be mounted inside the
+        # container with the required idmap option for private user namespaces
+        # See https://github.com/NixOS/nixpkgs/issues/451167
+        # See https://github.com/systemd/systemd/issues/25886
+        virtualisation.vmVariant.virtualisation =
+          let
+            privateUserNamespaces = (
+              builtins.any (
+                container:
+                !(builtins.elem container.privateUsers [
+                  0
+                  "no"
+                  "identity"
+                ])
+              ) (builtins.attrValues config.containers)
+            );
+          in
+          lib.mkIf privateUserNamespaces {
+            writableStore = false;
+            useNixStoreImage = true;
+          };
       }
     ))
   ];
