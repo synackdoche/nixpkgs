@@ -293,11 +293,6 @@ let
         if [[ -z "''${HOST_BRIDGE-}" ]]; then
           ifaceHost=ve-$INSTANCE
           ip link set dev "$ifaceHost" up
-
-          ${ipcall cfg "ip addr" "HOST_ADDRESS" "hostAddress"}
-          ${ipcall cfg "ip -6 addr" "HOST_ADDRESS6" "hostAddress6"}
-          ${ipcall cfg "ip route" "LOCAL_ADDRESS" "localAddress"}
-          ${ipcall cfg "ip -6 route" "LOCAL_ADDRESS6" "localAddress6"}
         fi
       fi
       ${concatStringsSep "\n" (mapAttrsToList renderExtraVeth cfg.extraVeths)}
