@@ -4,7 +4,7 @@
   stdenv,
 
   # Dependencies
-  abseil-cpp,
+  abseil-cpp_202508,
   c-ares,
   croncpp,
   double-conversion,
@@ -130,7 +130,7 @@ stdenv.mkDerivation {
 
     # Copy FetchContent dependencies (in helio/cmake/third_party.cmake)
     # These go to build/_deps/ where FetchContent expects them
-    cp -r --no-preserve=mode,ownership ${abseil-cpp.src} build/_deps/abseil_cpp-src
+    cp -r --no-preserve=mode,ownership ${abseil-cpp_202508.src} build/_deps/abseil_cpp-src
     cp -r --no-preserve=mode,ownership ${gbenchmark.src} build/_deps/benchmark-src
     cp -r --no-preserve=mode,ownership ${glog-absl} build/_deps/glog-src
     cp -r --no-preserve=mode,ownership ${gtest.src} build/_deps/gtest-src
