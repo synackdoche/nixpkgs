@@ -3708,6 +3708,8 @@ self: super: with self; {
 
   dbglib = callPackage ../development/python-modules/dbglib { };
 
+  dbgpu = callPackage ../development/python-modules/dbgpu { };
+
   dbt-adapters = callPackage ../development/python-modules/dbt-adapters { };
 
   dbt-bigquery = callPackage ../development/python-modules/dbt-bigquery { };
@@ -11887,6 +11889,10 @@ self: super: with self; {
 
   opentelemetry-instrumentation-logging =
     callPackage ../development/python-modules/opentelemetry-instrumentation-logging
+      { };
+
+  opentelemetry-instrumentation-psycopg =
+    callPackage ../development/python-modules/opentelemetry-instrumentation-psycopg
       { };
 
   opentelemetry-instrumentation-psycopg2 =
