@@ -407,25 +407,25 @@ in
   corerad = runTest ./corerad.nix;
   corteza = runTest ./corteza.nix;
   cosmic = runTest {
-    imports = [ ./cosmic.nix ];
+    imports = [ ./cosmic ];
     _module.args.testName = "cosmic";
     _module.args.enableAutologin = false;
     _module.args.enableXWayland = true;
   };
   cosmic-autologin = runTest {
-    imports = [ ./cosmic.nix ];
+    imports = [ ./cosmic ];
     _module.args.testName = "cosmic-autologin";
     _module.args.enableAutologin = true;
     _module.args.enableXWayland = true;
   };
   cosmic-autologin-noxwayland = runTest {
-    imports = [ ./cosmic.nix ];
+    imports = [ ./cosmic ];
     _module.args.testName = "cosmic-autologin-noxwayland";
     _module.args.enableAutologin = true;
     _module.args.enableXWayland = false;
   };
   cosmic-noxwayland = runTest {
-    imports = [ ./cosmic.nix ];
+    imports = [ ./cosmic ];
     _module.args.testName = "cosmic-noxwayland";
     _module.args.enableAutologin = false;
     _module.args.enableXWayland = false;
@@ -598,6 +598,7 @@ in
   flannel = runTestOn [ "x86_64-linux" ] ./flannel.nix;
   flap-alerted = runTest ./flap-alerted.nix;
   flaresolverr = runTest ./flaresolverr.nix;
+  flarum = runTest ./flarum.nix;
   flood = runTest ./flood.nix;
   fluent-bit = runTest ./fluent-bit.nix;
   fluentd = runTest ./fluentd.nix;

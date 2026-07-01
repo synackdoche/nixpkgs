@@ -20,24 +20,35 @@ let
     "10_29_2" = {
       version = "10.29.2";
       hash = "sha256-hAL2daH0zJ1PJ7v6s1wtSi4dfrATHfA9rQlhnoZnTQw=";
+      knownVulnerabilities = [
+        "CVE-2026-48995"
+        "CVE-2026-50014"
+        "CVE-2026-50015"
+        "CVE-2026-50016"
+        "CVE-2026-50017"
+        "CVE-2026-50573"
+        "CVE-2026-55699"
+      ];
     };
     "10" = {
-      version = "10.33.4";
-      hash = "sha256-jnDdxmSbGLw9iVzzqQjAKR6kw4A5rYcixH4Bja8enPw=";
+      version = "10.34.0";
+      hash = "sha256-WOFDJYhx31FYm2UcBiBdq+xIdmpdu6PCWZm2m1C+WY4=";
     };
     "11" = {
-      version = "11.8.0";
-      hash = "sha256-HpY6XEylFoVQugP8TujYc6dysHK3/OY7SP/yfXIOLpg=";
+      version = "11.9.0";
+      hash = "sha256-K1Z6pmAmI4B4rC4KM77D/r1g6WKYeqxpdFbzGAgZsoc=";
     };
   };
 
   callPnpm =
     variant:
-    callPackage ./generic.nix {
-      inherit (variant) version hash;
-      #FIXME: remove this hack in a future version.
-      nodejs = null; # Passing null to detect out-of-tree overrides
-    };
+    callPackage ./generic.nix (
+      variant
+      // {
+        #FIXME: remove this hack in a future version.
+        nodejs = null; # Passing null to detect out-of-tree overrides
+      }
+    );
 
   mkPnpm = versionSuffix: variant: nameValuePair "pnpm_${versionSuffix}" (callPnpm variant);
 in
