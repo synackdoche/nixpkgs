@@ -48,7 +48,7 @@ GEM
       elasticsearch-api (= 8.17.1)
     elasticsearch-api (8.17.1)
       multi_json
-    excon (1.2.5)
+    excon (1.5.0)
       logger
     faraday (2.12.2)
       faraday-net_http (>= 2.0, < 3.5)
@@ -120,7 +120,7 @@ GEM
     http_parser.rb (0.8.0)
     jmespath (1.6.2)
     json (2.10.1)
-    logger (1.6.6)
+    logger (1.7.0)
     ltsv (0.1.2)
     mongo (2.18.3)
       bson (>= 4.14.1, < 5.0.0)
