@@ -16987,6 +16987,12 @@
     githubId = 110860;
     name = "Martin Jesper Low Madsen";
   };
+  martinkontsek = {
+    email = "martinkontsek@gmail.com";
+    github = "martinkontsek";
+    githubId = 9106867;
+    name = "Martin Kontšek";
+  };
   martinramm = {
     email = "martin-ramm@gmx.de";
     github = "MartinRamm";
@@ -30180,6 +30186,11 @@
     github = "xosnrdev";
     githubId = 106241330;
     name = "Success Kingsley";
+  };
+  xqtc161 = {
+    github = "xqtc161";
+    githubId = 65857432;
+    name = "tila";
   };
   xrelkd = {
     github = "xrelkd";
