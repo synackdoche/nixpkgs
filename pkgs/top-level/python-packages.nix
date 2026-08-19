@@ -7417,6 +7417,8 @@ self: super: with self; {
 
   hypothesis-auto = callPackage ../development/python-modules/hypothesis-auto { };
 
+  hypothesis-jsonschema = callPackage ../development/python-modules/hypothesis-jsonschema { };
+
   hypothesis_6_136 = callPackage ../development/python-modules/hypothesis/hypothesis_6_136.nix { };
 
   hypothesmith = callPackage ../development/python-modules/hypothesmith { };
@@ -18158,6 +18160,8 @@ self: super: with self; {
   smart-open = callPackage ../development/python-modules/smart-open { };
 
   smarthab = callPackage ../development/python-modules/smarthab { };
+
+  smartthings-local = callPackage ../development/python-modules/smartthings-local { };
 
   smartypants = callPackage ../development/python-modules/smartypants { };
 
