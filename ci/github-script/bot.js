@@ -1,13 +1,13 @@
 // @ts-nocheck
-module.exports = async ({ github, context, core, dry }) => {
-  const path = require('node:path')
-  const { DefaultArtifactClient } = await import('@actions/artifact')
-  const { readFile, writeFile } = require('node:fs/promises')
-  const withRateLimit = require('./withRateLimit.js')
-  const { classify } = require('../supportedBranches.js')
-  const { handleMerge } = require('./merge.js')
-  const { handleReviewers } = require('./reviewers.js')
+import { readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { DefaultArtifactClient } from '@actions/artifact'
+import { handleMerge } from './merge.js'
+import { handleReviewers } from './reviewers.js'
+import { classify } from './supportedBranches.js'
+import withRateLimit from './withRateLimit.js'
 
+export default async ({ github, context, core, dry }) => {
   const artifactClient = new DefaultArtifactClient()
 
   // Detect if running in a fork (not NixOS/nixpkgs)
@@ -794,6 +794,7 @@ module.exports = async ({ github, context, core, dry }) => {
         } else {
           // No stats.artifacts++, because this does not allow passing a custom token.
           // Thus, the upload will not happen with the app token, but the default github.token.
+          core.info(`pagination-cursor: ${cursor}`)
           await artifactClient.uploadArtifact(
             'pagination-cursor',
             [uploadPath],
@@ -803,6 +804,8 @@ module.exports = async ({ github, context, core, dry }) => {
             },
           )
         }
+      } else {
+        core.info('pagination-cursor: <n/a>')
       }
 
       // Some items might be in both search results, so filtering out duplicates as well.
