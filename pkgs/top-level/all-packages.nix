@@ -2961,6 +2961,7 @@ with pkgs;
     pnpm_10_29_2
     pnpm_10
     pnpm_11
+    pnpm_12
     ;
   pnpm = pnpm_11;
 
@@ -4321,6 +4322,7 @@ with pkgs;
 
   rust_1_95 = callPackage ../development/compilers/rust/1_95.nix { };
   rust_1_97 = callPackage ../development/compilers/rust/1_97.nix { };
+  rust_1_98 = callPackage ../development/compilers/rust/1_98.nix { };
   rust = rust_1_95;
 
   mrustc = callPackage ../development/compilers/mrustc { };
@@ -4329,6 +4331,7 @@ with pkgs;
 
   rustPackages_1_95 = rust_1_95.packages.stable;
   rustPackages_1_97 = rust_1_97.packages.stable;
+  rustPackages_1_98 = rust_1_98.packages.stable;
   rustPackages = rustPackages_1_95;
 
   inherit (rustPackages)
@@ -5120,6 +5123,7 @@ with pkgs;
     electron_41-bin
     electron_42-bin
     electron_43-bin
+    electron_44-bin
     ;
 
   inherit (callPackages ../development/tools/electron/chromedriver { })
@@ -5129,6 +5133,7 @@ with pkgs;
     electron-chromedriver_41
     electron-chromedriver_42
     electron-chromedriver_43
+    electron-chromedriver_44
     ;
 
   inherit
@@ -5160,6 +5165,10 @@ with pkgs;
           src = electron-source.electron_43;
           bin = electron_43-bin;
         };
+        electron_44 = getElectronPkg {
+          src = electron-source.electron_44;
+          bin = electron_44-bin;
+        };
       }
     )
     electron_38
@@ -5168,6 +5177,7 @@ with pkgs;
     electron_41
     electron_42
     electron_43
+    electron_44
     ;
   electron = electron_43;
   electron-bin = electron_43-bin;
