@@ -620,30 +620,18 @@ in
 
                                       ipv4 = {
                                         addresses = mkIf (config.localAddress != null) (mkAfter [
-                                          {
-                                            address = (head (splitString "/" config.localAddress));
-                                            prefixLength = 24;
-                                          }
+                                          ipv4FromString config.localAddress
                                         ]);
                                         routes = mkIf (config.hostAddress != null) (mkAfter [
-                                          {
-                                            address = config.hostAddress;
-                                            prefixLength = 24;
-                                          }
+                                          ipv4FromString config.hostAddress
                                         ]);
                                       };
                                       ipv6 = {
                                         addresses = mkIf (config.localAddress6 != null) (mkAfter [
-                                          {
-                                            address = (head (splitString "/" config.localAddress6));
-                                            prefixLength = 64;
-                                          }
+                                          lib.network.ipv6.fromString config.localAddress6
                                         ]);
                                         routes = mkIf (config.hostAddress6 != null) (mkAfter [
-                                          {
-                                            address = config.hostAddress6;
-                                            prefixLength = 64;
-                                          }
+                                          lib.network.ipv6.fromString config.hostAddress6
                                         ]);
                                       };
                                     };
