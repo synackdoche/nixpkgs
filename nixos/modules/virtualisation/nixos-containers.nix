@@ -614,28 +614,22 @@ in
                                     interface = "eth0";
                                   });
 
-                                  interfaces = {
-                                    "eth0" = {
-                                      useDHCP = mkDefault (config.hostAddress == null);
-
-                                      ipv4 = {
-                                        addresses = mkIf (config.localAddress != null) (mkAfter [
-                                          ipv4FromString config.localAddress
-                                        ]);
-                                        routes = mkIf (config.hostAddress != null) (mkAfter [
-                                          ipv4FromString config.hostAddress
-                                        ]);
-                                      };
-                                      ipv6 = {
-                                        addresses = mkIf (config.localAddress6 != null) (mkAfter [
-                                          lib.network.ipv6.fromString config.localAddress6
-                                        ]);
-                                        routes = mkIf (config.hostAddress6 != null) (mkAfter [
-                                          lib.network.ipv6.fromString config.hostAddress6
-                                        ]);
-                                      };
-                                    };
-                                  };
+                                  interfaces = lib.mkIf config.privateNetwork (
+                                    lib.mkMerge [
+                                      (lib.mkIf (config.localAddress != null) {
+                                        eth0.ipv4.addresses = [ (ipv4FromString config.localAddress) ];
+                                      })
+                                      (lib.mkIf (config.hostAddress != null) {
+                                        eth0.ipv4.routes = [ (ipv4FromString config.hostAddress) ];
+                                      })
+                                      (lib.mkIf (config.localAddress6 != null) {
+                                        eth0.ipv6.addresses = [ (lib.network.ipv6.fromString config.localAddress6) ];
+                                      })
+                                      (lib.mkIf (config.hostAddress6 != null) {
+                                        eth0.ipv6.routes = [ (lib.network.ipv6.fromString config.hostAddress6) ];
+                                      })
+                                    ]
+                                  );
                                 };
 
                                 assertions = [
