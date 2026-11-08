@@ -8833,6 +8833,9 @@ with pkgs;
 
   bitwig-studio = bitwig-studio6;
 
+  brave = (callPackage ../applications/networking/browsers/brave { }).brave;
+  brave-origin = (callPackage ../applications/networking/browsers/brave { }).brave-origin;
+
   blucontrol = callPackage ../applications/misc/blucontrol/wrapper.nix {
     inherit (haskellPackages) ghcWithPackages;
   };
