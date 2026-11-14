@@ -228,6 +228,9 @@ let
             thoughtpolice
           ];
           platforms = lib.platforms.all;
+          knownVulnerabilities = lib.optionals (lib.versions.majorMinor version == "10.6") [
+            "MariaDB 10.6 reached its end of life in July 2026"
+          ];
         };
       };
 
@@ -401,8 +404,8 @@ self: {
   };
   mariadb_1011 = self.callPackage generic {
     # Supported until 2028-02-16
-    version = "10.11.18";
-    hash = "sha256-pGhSxoB1vnwxx7M/7iM8W1oAyMKBF/UgTRJOTy/Vb6g=";
+    version = "10.11.19";
+    hash = "sha256-uOVD7mnTgPsc/VYyJvSeD+luTWfnt6kEXuUUoWjtIGY=";
   };
   mariadb_114 = self.callPackage generic {
     # Supported until 2029-05-29
