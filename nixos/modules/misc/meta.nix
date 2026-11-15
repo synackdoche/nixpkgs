@@ -38,6 +38,15 @@ in
         '';
       };
 
+      description = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        internal = true;
+        description = ''
+          Summary of the module, shown as its documentation heading.
+        '';
+      };
+
     };
   };
 
