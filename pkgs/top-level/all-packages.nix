@@ -9046,18 +9046,6 @@ with pkgs;
       buildMozillaMach
       ;
   };
-  firefox-beta-unwrapped =
-    import ../applications/networking/browsers/firefox/packages/firefox-beta.nix
-      {
-        inherit
-          stdenv
-          lib
-          callPackage
-          fetchurl
-          nixosTests
-          buildMozillaMach
-          ;
-      };
   firefox-devedition-unwrapped =
     import ../applications/networking/browsers/firefox/packages/firefox-devedition.nix
       {
@@ -9096,7 +9084,6 @@ with pkgs;
   firefox-esr-unwrapped = firefox-esr-153-unwrapped;
 
   firefox = wrapFirefox firefox-unwrapped { };
-  firefox-beta = wrapFirefox firefox-beta-unwrapped { };
   firefox-devedition = wrapFirefox firefox-devedition-unwrapped { };
 
   firefox-mobile = callPackage ../applications/networking/browsers/firefox/mobile-config.nix { };
