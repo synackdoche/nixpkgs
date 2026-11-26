@@ -4326,6 +4326,7 @@ with pkgs;
   rust_1_95 = callPackage ../development/compilers/rust/1_95.nix { };
   rust_1_97 = callPackage ../development/compilers/rust/1_97.nix { };
   rust_1_98 = callPackage ../development/compilers/rust/1_98.nix { };
+  rust_1_100 = callPackage ../development/compilers/rust/1_100.nix { };
   rust = rust_1_95;
 
   mrustc = callPackage ../development/compilers/mrustc { };
@@ -4335,6 +4336,7 @@ with pkgs;
   rustPackages_1_95 = rust_1_95.packages.stable;
   rustPackages_1_97 = rust_1_97.packages.stable;
   rustPackages_1_98 = rust_1_98.packages.stable;
+  rustPackages_1_100 = rust_1_100.packages.stable;
   rustPackages = rustPackages_1_95;
 
   inherit (rustPackages)
@@ -11710,8 +11712,6 @@ with pkgs;
   xp-pen-deco-01-v2-driver = libsForQt5.xp-pen-deco-01-v2-driver;
 
   radicle-node-unstable = callPackage ../by-name/ra/radicle-node/unstable.nix { };
-
-  olivetin-3k = callPackage ../by-name/ol/olivetin/3k.nix { };
 
   newlib-nano = newlib.override {
     nanoizeNewlib = true;
